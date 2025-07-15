@@ -6,6 +6,28 @@ const HomePage = () => {
   const [recommendedCourses, setRecommendedCourses] = useState([]);
   const [popularCourses, setPopularCourses] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceFilter, setPriceFilter] = useState('');
+
+  const filterCourses = (courses) => {
+    return courses.filter(course => {
+      const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
+
+      let matchesPrice = true;
+      const price = Number(course.price);
+
+      if (priceFilter === 'under500') {
+        matchesPrice = price < 500000;
+      } else if (priceFilter === '500to1000') {
+        matchesPrice = price >= 500000 && price <= 1000000;
+      } else if (priceFilter === 'above1000') {
+        matchesPrice = price > 1000000;
+      }
+
+      return matchesSearch && matchesPrice;
+    });
+  };
+
 
   useEffect(() => {
     // Dữ liệu giả lập - thực tế sẽ gọi API
@@ -23,7 +45,7 @@ const HomePage = () => {
         id: 2,
         title: "Thiết kế Web cơ bản với HTML & CSS",
         instructor: "Thầy Lê Văn B",
-        price: 399000,
+        price: 1000000,
         rating: 4.5,
         thumbnail: "/html1.jpeg",
         description: "Học cách xây dựng giao diện website đẹp và chuẩn responsive với HTML và CSS."
@@ -32,7 +54,7 @@ const HomePage = () => {
         id: 4,
         title: "Kỹ năng mềm trong môi trường công sở",
         instructor: "Chị Trần Mai Linh",
-        price: 299000,
+        price: 2000000,
         rating: 4.2,
         thumbnail: "/softskill.jpeg",
         description: "Cải thiện kỹ năng giao tiếp, làm việc nhóm và tư duy phản biện trong công việc."
@@ -84,10 +106,25 @@ const HomePage = () => {
         <h1>Học tập thông minh cùng AI</h1>
         <p>Khám phá các khóa học chất lượng được cá nhân hóa cho bạn</p>
       </section>
+
+        <div className="filter-bar">
+          <input 
+            type="text"
+            placeholder="Tìm kiếm theo tên khóa học"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <select value={priceFilter} onChange={(e) => setPriceFilter(e.target.value)}>
+            <option value="">Tất cả giá</option>
+            <option value="under500">Dưới 500K</option>
+            <option value="500to1000">500K – 1 triệu</option>
+            <option value="above1000">Trên 1 triệu</option>
+          </select>
+        </div>
       
       <section className="section">
         <h2>Đề xuất dành cho bạn</h2>
-        <CourseList courses={recommendedCourses} />
+        <CourseList courses={filterCourses(recommendedCourses)} />
       </section>
       
       <section className="section">
